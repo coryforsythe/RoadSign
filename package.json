@@ -1,0 +1,30 @@
+{
+  "name": "roadsign",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "preferGlobal": true,
+  "bin": {
+    "RoadSign": "bin/RoadSign"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coryforsythe/RoadSign.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coryforsythe/RoadSign/issues"
+  },
+  "homepage": "https://github.com/coryforsythe/RoadSign#readme",
+  "dependencies": {
+    "aws-sdk": "^2.301.0",
+    "command-line-args": "^5.0.2",
+    "command-line-usage": "^5.0.5",
+    "log4js": "^3.0.5",
+    "public-ip": "^2.4.0"
+  }
+}

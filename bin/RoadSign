@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+var log4js = require('log4js'),
+    commandLineArgs = require('command-line-args'),
+    commandLineUsage = require('command-line-usage'),
+    publicIp = require('public-ip'),
+    AWS= require('aws-sdk');
+
+var route53 = new AWS.Route53();
+
+//configure logging
+log4js.configure({
+  appenders: { file: { type: 'file', filename: 'RoadSign.log' },console: { type: 'console' } },
+  categories: { default: { appenders: ['file','console'], level: 'debug' } }
+});
+var logger = log4js.getLogger();
+
+//configure cmd args parser
+var optionList=[
+ { name: 'zoneId', alias:'z', type: String, description:'The ZoneID of the Route53 Zone where the record exists'},
+ { name: 'record', alias:'r', type: String, description:'The Route53 Record that will be updated with the current public IP'},
+ { name: 'ttl', alias:'t', type: Number, description:'(Optional) The TTL to be set for the Route53 Record'},
+
+];
+var options = commandLineArgs(optionList)
+//Setup usage helper
+var sections = [
+  {header: 'RoadSign', content: 'RoadSign is a Route53 DDNS client. It updates the specified Route53 Record with the current public IP address where the application is executed. \n\n AWS Credentials should be provided by running "aws configure" from the AWS CLI'},
+  {header: 'Options', optionList: optionList}
+];
+
+//build usage text
+var usage = commandLineUsage(sections)
+
+
+if(!options.zoneId)
+{
+  logger.error("The Route53 ZoneId must be specified.");
+  console.log(usage);
+
+  process.exit(2);
+}
+if(!options.record)
+{
+  logger.error("The Route53 Record must be specified.");
+  console.log(usage);
+  process.exit(2);
+}
+if(!options.ttl)
+  options.ttl=300;
+
+//Get public IP
+
+
+publicIp.v4().then(ip => {
+  logger.info("Current IPv4 Address is "+ip);
+   var params = {
+    ChangeBatch: {
+     Changes: [
+        {
+         Action: "UPSERT",
+         ResourceRecordSet: {
+          Name: options.record,
+          ResourceRecords: [{Value: ip}],
+          TTL: options.ttl,
+          Type: "A"
+       }
+      }
+     ],
+     Comment: "RoadSign DDNS"
+    },
+    HostedZoneId: options.zoneId
+   };
+   logger.info("... Updating Record:");
+   route53.changeResourceRecordSets(params, function(err, data) {
+     if (err)
+      logger.error("Error updating the record: "+err);
+     else
+     logger.info("... [OK]");
+   });
+});
