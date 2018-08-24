@@ -9,7 +9,8 @@ RoadSign is a Node.JS console DDNS utility that updates (or creates) an AWS Rout
 Install the AWS CLI using the [Instructions Here](https://aws.amazon.com/cli/)
 
 Configure the AWS CLI with your desired credentials.  
-> Ensure the credentials relate to an IAM user that has permissions to Create and Update Route53 records in the desired Route53 Zone
+> Ensure the credentials relate to an IAM user that has permissions to 'ChangeResourceRecordSets'
+ within Route53 in the desired Route53 Zone
 
 ```
 aws configure
